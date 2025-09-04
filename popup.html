@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WorkTime Buddy</title>
+    <link rel="stylesheet" href="styles/md3.css">
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
             <h1 id="app-title" data-i18n="app-title">WorkTime Buddy</h1>
-            <div class="status-indicator" id="status-indicator">
-                <span id="status-text" data-i18n="status.ready">Ready</span>
-            </div>
+            
         </header>
 
         <main class="main-content">
@@ -44,8 +43,6 @@
             <!-- Control Buttons -->
             <section class="control-section">
                 <button id="start-work" class="btn btn-primary" data-i18n="startNow">Start Now</button>
-                <button id="start-lunch" class="btn btn-secondary" data-i18n="startLunch">Start Lunch</button>
-                <button id="end-lunch" class="btn btn-secondary" data-i18n="endLunch">End Lunch</button>
                 <button id="end-work" class="btn btn-danger" data-i18n="resetToday">Reset Today</button>
             </section>
 
@@ -63,7 +60,7 @@
 
                 <div class="time-card">
                     <div class="time-label" data-i18n="endTime">End Time</div>
-                    <div class="time-value" id="end-time">17:00</div>
+                    <div class="time-value" id="end-time">18:00</div>
                 </div>
             </section>
 

@@ -1,12 +1,10 @@
 // WorkTime Buddy - Popup Script
 class WorkTimePopup {
     constructor() {
+        this.isExtensionEnv = typeof chrome !== 'undefined' && !!(chrome.runtime && chrome.runtime.id);
         this.currentState = {
             isWorking: false,
-            isOnLunch: false,
             startTime: null,
-            lunchStartTime: null,
-            lunchEndTime: null,
             endTime: null,
             requiredHours: 8,
             preLeaveMinutes: 10
@@ -30,9 +28,16 @@ class WorkTimePopup {
 
     async loadSettings() {
         try {
-            const result = await chrome.storage.sync.get([
-                'requiredHours', 'preLeaveMinutes', 'theme', 'language'
-            ]);
+            let result = {};
+            if (this.isExtensionEnv && chrome.storage?.sync) {
+                result = await chrome.storage.sync.get([
+                    'requiredHours', 'preLeaveMinutes', 'theme', 'language'
+                ]);
+            } else {
+                // Dev fallback
+                const stored = localStorage.getItem('worktime-buddy-settings');
+                result = stored ? JSON.parse(stored) : {};
+            }
 
             this.currentState.requiredHours = result.requiredHours || 8;
             this.currentState.preLeaveMinutes = result.preLeaveMinutes || 10;
@@ -55,17 +60,19 @@ class WorkTimePopup {
 
     async loadCurrentState() {
         try {
-            const result = await chrome.storage.local.get([
-                'isWorking', 'isOnLunch', 'startTime', 'lunchStartTime',
-                'lunchEndTime', 'endTime', 'requiredHours'
-            ]);
+            let result = {};
+            if (this.isExtensionEnv && chrome.storage?.local) {
+                result = await chrome.storage.local.get([
+                    'isWorking', 'startTime', 'endTime', 'requiredHours'
+                ]);
+            } else {
+                const stored = localStorage.getItem('worktime-buddy-state');
+                result = stored ? JSON.parse(stored) : {};
+            }
 
             if (result.startTime) {
                 this.currentState.isWorking = result.isWorking || false;
-                this.currentState.isOnLunch = result.isOnLunch || false;
                 this.currentState.startTime = new Date(result.startTime);
-                this.currentState.lunchStartTime = result.lunchStartTime ? new Date(result.lunchStartTime) : null;
-                this.currentState.lunchEndTime = result.lunchEndTime ? new Date(result.lunchEndTime) : null;
                 this.currentState.endTime = result.endTime ? new Date(result.endTime) : null;
                 this.currentState.requiredHours = result.requiredHours || this.currentState.requiredHours;
             }
@@ -98,14 +105,6 @@ class WorkTimePopup {
             this.startWork();
         });
 
-        document.getElementById('start-lunch').addEventListener('click', () => {
-            this.startLunch();
-        });
-
-        document.getElementById('end-lunch').addEventListener('click', () => {
-            this.endLunch();
-        });
-
         document.getElementById('end-work').addEventListener('click', () => {
             this.endWork();
         });
@@ -129,7 +128,6 @@ class WorkTimePopup {
         const lunchStartInput = document.getElementById('lunch-start');
         const lunchEndInput = document.getElementById('lunch-end');
         const requiredHours = parseFloat(document.getElementById('required-hours').value);
-
         if (!startTimeInput.value) return;
 
         const startTime = new Date();
@@ -157,16 +155,23 @@ class WorkTimePopup {
         // Calculate end time
         const endTime = new Date(startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
 
+        // Update UI
         document.getElementById('end-time').textContent =
-            endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            endTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        // Persist to state so other logic (badge/alarms) can reference it if needed
+        this.currentState.endTime = endTime;
+        // Do not override startTime here; startTime is only set in startWork()
+        // Optionally persist lightweight state (non-blocking)
+        this.saveState?.();
     }
 
     async startWork() {
+        if (this.currentState.isWorking) return;
         const startTimeInput = document.getElementById('start-time');
-        if (!startTimeInput.value) {
-            // Use current time if no time specified
-            const now = new Date();
-            startTimeInput.value = now.toTimeString().slice(0, 5);
+        if (!startTimeInput || !startTimeInput.value) {
+            console.warn('Start time is empty; please provide a value in the start time input.');
+            return;
         }
 
         const [hour, minute] = startTimeInput.value.split(':').map(Number);
@@ -175,9 +180,7 @@ class WorkTimePopup {
 
         this.currentState.isWorking = true;
         this.currentState.startTime = startTime;
-        this.currentState.isOnLunch = false;
-        this.currentState.lunchStartTime = null;
-        this.currentState.lunchEndTime = null;
+        // Lunch timing is managed via inputs only; no state tracking
 
         await this.saveState();
         this.updateEndTime();
@@ -186,38 +189,13 @@ class WorkTimePopup {
         this.updateBadge();
 
         // Notify background script
-        chrome.runtime.sendMessage({ action: 'workStarted', startTime: startTime.toISOString() });
-    }
-
-    async startLunch() {
-        if (!this.currentState.isWorking) return;
-
-        this.currentState.isOnLunch = true;
-        this.currentState.lunchStartTime = new Date();
-
-        await this.saveState();
-        this.updateUI();
-        this.updateBadge();
-
-        chrome.runtime.sendMessage({ action: 'lunchStarted' });
-    }
-
-    async endLunch() {
-        if (!this.currentState.isOnLunch) return;
-
-        this.currentState.isOnLunch = false;
-        this.currentState.lunchEndTime = new Date();
-
-        await this.saveState();
-        this.updateUI();
-        this.updateBadge();
-
-        chrome.runtime.sendMessage({ action: 'lunchEnded' });
+        if (this.isExtensionEnv && chrome.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({ action: 'workStarted', startTime: startTime.toISOString() });
+        }
     }
 
     async endWork() {
         this.currentState.isWorking = false;
-        this.currentState.isOnLunch = false;
 
         await this.saveState();
         this.updateUI();
@@ -230,10 +208,7 @@ class WorkTimePopup {
         if (confirm('Are you sure you want to reset your work session?')) {
             this.currentState = {
                 isWorking: false,
-                isOnLunch: false,
                 startTime: null,
-                lunchStartTime: null,
-                lunchEndTime: null,
                 endTime: null,
                 requiredHours: this.currentState.requiredHours,
                 preLeaveMinutes: this.currentState.preLeaveMinutes
@@ -252,15 +227,17 @@ class WorkTimePopup {
         try {
             const stateToSave = {
                 isWorking: this.currentState.isWorking,
-                isOnLunch: this.currentState.isOnLunch,
                 startTime: this.currentState.startTime ? this.currentState.startTime.toISOString() : null,
-                lunchStartTime: this.currentState.lunchStartTime ? this.currentState.lunchStartTime.toISOString() : null,
-                lunchEndTime: this.currentState.lunchEndTime ? this.currentState.lunchEndTime.toISOString() : null,
                 endTime: this.currentState.endTime ? this.currentState.endTime.toISOString() : null,
                 requiredHours: this.currentState.requiredHours
             };
 
-            await chrome.storage.local.set(stateToSave);
+            if (this.isExtensionEnv && chrome.storage?.local) {
+                await chrome.storage.local.set(stateToSave);
+            } else {
+                // Dev fallback when opened as a regular web page
+                localStorage.setItem('worktime-buddy-state', JSON.stringify(stateToSave));
+            }
         } catch (error) {
             console.error('Error saving state:', error);
         }
@@ -272,39 +249,33 @@ class WorkTimePopup {
         const endTime = this.calculateEndTime();
         const preLeaveTime = new Date(endTime.getTime() - (this.currentState.preLeaveMinutes * 60 * 1000));
 
-        // Clear existing alarms
-        chrome.runtime.sendMessage({ action: 'clearAlarms' });
-
-        // Set pre-leave alarm
-        chrome.runtime.sendMessage({
-            action: 'setAlarm',
-            name: 'preLeave',
-            when: preLeaveTime.getTime()
-        });
-
-        // Set end time alarm
-        chrome.runtime.sendMessage({
-            action: 'setAlarm',
-            name: 'endTime',
-            when: endTime.getTime()
-        });
+        // Alarms are scheduled in background on 'workStarted'.
+        // Keep this method for future use; no-op to avoid duplicate scheduling.
     }
 
     calculateEndTime() {
         if (!this.currentState.startTime) return null;
 
-        // Calculate total time needed (work hours + lunch break)
+        // Calculate total time needed (work hours + lunch break from inputs)
         let totalTimeNeeded = this.currentState.requiredHours;
 
-        // Add lunch break if taken
-        if (this.currentState.lunchStartTime && this.currentState.lunchEndTime) {
-            const lunchDuration = (this.currentState.lunchEndTime - this.currentState.lunchStartTime) / (1000 * 60 * 60);
-            totalTimeNeeded += lunchDuration;
+        const lunchStartInput = document.getElementById('lunch-start');
+        const lunchEndInput = document.getElementById('lunch-end');
+        if (lunchStartInput?.value && lunchEndInput?.value) {
+            const [lsH, lsM] = lunchStartInput.value.split(':').map(Number);
+            const [leH, leM] = lunchEndInput.value.split(':').map(Number);
+            const ls = new Date(this.currentState.startTime);
+            ls.setHours(lsH, lsM, 0, 0);
+            const le = new Date(this.currentState.startTime);
+            le.setHours(leH, leM, 0, 0);
+            const lunchDuration = (le - ls) / (1000 * 60 * 60);
+            if (!isNaN(lunchDuration) && lunchDuration > 0) {
+                totalTimeNeeded += lunchDuration;
+            }
         }
 
         // Calculate end time
         const endTime = new Date(this.currentState.startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
-
         return endTime;
     }
 
@@ -334,13 +305,6 @@ class WorkTimePopup {
             // Calculate worked time
             let workedTime = now - this.currentState.startTime;
 
-            // Subtract lunch time if currently on lunch or lunch has ended
-            if (this.currentState.isOnLunch && this.currentState.lunchStartTime) {
-                workedTime -= (now - this.currentState.lunchStartTime);
-            } else if (this.currentState.lunchStartTime && this.currentState.lunchEndTime) {
-                workedTime -= (this.currentState.lunchEndTime - this.currentState.lunchStartTime);
-            }
-
             const workedHours = Math.floor(workedTime / (1000 * 60 * 60));
             const workedMinutes = Math.floor((workedTime % (1000 * 60 * 60)) / (1000 * 60));
 
@@ -362,12 +326,22 @@ class WorkTimePopup {
                 }
 
                 document.getElementById('end-time').textContent =
-                    endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    endTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
             }
         } else {
             document.getElementById('worked-time').textContent = '00:00';
             document.getElementById('remaining-time').textContent = '08:00';
-            document.getElementById('end-time').textContent = '17:00';
+
+            const startTimeInput = document.getElementById('start-time');
+            const lunchStartInput = document.getElementById('lunch-start');
+            const lunchEndInput = document.getElementById('lunch-end');
+
+            // If user has filled inputs, compute and show end time from inputs instead of default
+            if (startTimeInput?.value) {
+                this.updateEndTime();
+            } else {
+                document.getElementById('end-time').textContent = '18:00';
+            }
         }
     }
 
@@ -382,11 +356,6 @@ class WorkTimePopup {
             statusIcon.textContent = '⏰';
             statusTitle.textContent = i18n.t('status.ready');
             statusSubtitle.textContent = i18n.t('start-your-work-day');
-        } else if (this.currentState.isOnLunch) {
-            statusCard.className = 'status-card status-lunch';
-            statusIcon.textContent = '🍽️';
-            statusTitle.textContent = i18n.t('status.lunch');
-            statusSubtitle.textContent = i18n.t('enjoy-your-break');
         } else {
             const endTime = this.calculateEndTime();
             const now = new Date();
@@ -408,20 +377,19 @@ class WorkTimePopup {
 
     updateButtonStates() {
         const startWorkBtn = document.getElementById('start-work');
-        const startLunchBtn = document.getElementById('start-lunch');
-        const endLunchBtn = document.getElementById('end-lunch');
         const endWorkBtn = document.getElementById('end-work');
 
         startWorkBtn.disabled = this.currentState.isWorking;
-        startLunchBtn.disabled = !this.currentState.isWorking || this.currentState.isOnLunch;
-        endLunchBtn.disabled = !this.currentState.isOnLunch;
+        // Only start/end work buttons are used now
         endWorkBtn.disabled = !this.currentState.isWorking;
     }
 
     async updateBadge() {
         try {
             if (!this.currentState.isWorking) {
-                chrome.action.setBadgeText({ text: '' });
+                if (this.isExtensionEnv && chrome.action?.setBadgeText) {
+                    chrome.action.setBadgeText({ text: '' });
+                }
                 return;
             }
 
@@ -431,13 +399,15 @@ class WorkTimePopup {
             const now = new Date();
             const remainingTime = endTime - now;
 
-            if (remainingTime <= 0) {
-                chrome.action.setBadgeText({ text: 'OT' });
-                chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
-            } else {
-                const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
-                chrome.action.setBadgeText({ text: remainingMinutes.toString() });
-                chrome.action.setBadgeBackgroundColor({ color: '#4facfe' });
+            if (this.isExtensionEnv && chrome.action?.setBadgeText) {
+                if (remainingTime <= 0) {
+                    chrome.action.setBadgeText({ text: 'OT' });
+                    chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+                } else {
+                    const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
+                    chrome.action.setBadgeText({ text: remainingMinutes.toString() });
+                    chrome.action.setBadgeBackgroundColor({ color: '#4facfe' });
+                }
             }
         } catch (error) {
             console.error('Error updating badge:', error);
@@ -455,48 +425,15 @@ class WorkTimePopup {
     // TEST NOTIFICATION METHOD - REMOVE IN PRODUCTION
     async testNotification() {
         try {
-            // Test different types of notifications
-            const notifications = [
-                {
-                    type: 'basic',
-                    iconUrl: 'icons/clock.png',
-                    title: 'Test Notification 1',
-                    message: 'This is a test notification for pre-leave reminder!',
-                    buttons: [
-                        { title: 'OK' },
-                        { title: 'Cancel' }
-                    ]
-                },
-                {
-                    type: 'basic',
-                    iconUrl: 'icons/clock.png',
-                    title: 'Test Notification 2',
-                    message: 'This is a test notification for end time!',
-                    buttons: [
-                        { title: 'End Work' },
-                        { title: 'Continue' }
-                    ]
-                },
-                {
-                    type: 'basic',
-                    iconUrl: 'icons/clock.png',
-                    title: 'Test Notification 3',
-                    message: 'This is a test notification for lunch break!',
-                    buttons: [
-                        { title: 'End Lunch' },
-                        { title: 'Dismiss' }
-                    ]
-                }
-            ];
-
-            // Show random notification
-            const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
-            await chrome.notifications.create('test-notification', randomNotification);
-
-            console.log('Test notification sent successfully');
+            if (this.isExtensionEnv && chrome.runtime?.sendMessage) {
+                await chrome.runtime.sendMessage({ action: 'testNotification' });
+                console.log('Test notification requested');
+            } else {
+                alert('Test notification only works inside the extension environment.');
+            }
         } catch (error) {
-            console.error('Error sending test notification:', error);
-            alert('Error sending test notification. Check console for details.');
+            console.error('Error requesting test notification:', error);
+            alert('Error requesting test notification. Check console for details.');
         }
     }
 }

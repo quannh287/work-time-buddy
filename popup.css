@@ -40,7 +40,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--md-ref-typeface);
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.5;
@@ -49,12 +49,13 @@ body {
 
 .container {
     width: 380px;
-    min-width: 300px;
+    min-width: 400px;
     min-height: 500px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--md-shape-corner-medium);
     overflow: hidden;
+    box-shadow: var(--md-elevation-1);
 }
 
 /* Header */
@@ -66,25 +67,9 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.header h1 {
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
-}
+.header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.02em; }
 
-.status-indicator {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    padding: 4px 8px;
-    font-size: 11px;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+
 
 /* Main Content */
 .main-content {
@@ -108,33 +93,31 @@ body {
 
 .input-group label {
     display: block;
-    font-weight: 400;
+    font-weight: 500;
     margin-bottom: 6px;
     color: var(--text-secondary);
     font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
 }
 
 .time-input, .number-input {
     width: 100%;
-    padding: 8px 0;
-    border: none;
-    border-bottom: 1px solid var(--border-color);
-    background: transparent;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
     font-size: 14px;
     color: var(--text-primary);
-    transition: border-color 0.2s ease;
+    border-radius: var(--md-shape-corner-small);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .time-input:focus, .number-input:focus {
     outline: none;
-    border-bottom-color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 
-.time-input:hover, .number-input:hover {
-    border-bottom-color: var(--text-muted);
-}
+.time-input:hover, .number-input:hover { border-color: var(--text-muted); }
 
 /* Control Section */
 .control-section {
@@ -149,14 +132,13 @@ body {
     border: 1px solid var(--border-color);
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-radius: 4px;
+    letter-spacing: 0.2px;
+    border-radius: 20px;
 }
 
 .btn:hover {
@@ -204,16 +186,17 @@ body {
     background: none;
     border: none;
     color: var(--text-secondary);
-    text-decoration: underline;
+    text-decoration: none;
     padding: 8px 0;
-    font-size: 12px;
-    text-transform: none;
-    letter-spacing: normal;
+    font-size: 13px;
+    letter-spacing: 0.2px;
 }
 
 .btn-link:hover {
     color: var(--accent-color);
-    background: none;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 8px 10px;
 }
 
 /* Time Display Section */
@@ -229,18 +212,12 @@ body {
     color: var(--text-primary);
     padding: 16px 8px;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--md-shape-corner-medium);
     text-align: center;
+    box-shadow: var(--md-elevation-1);
 }
 
-.time-label {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+.time-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.2px; }
 
 .time-value {
     font-size: 16px;
@@ -259,9 +236,10 @@ body {
     color: var(--text-primary);
     padding: 16px;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--md-shape-corner-medium);
     display: flex;
     align-items: center;
+    box-shadow: var(--md-elevation-1);
 }
 
 .status-icon {

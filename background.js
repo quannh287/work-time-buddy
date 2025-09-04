@@ -7,7 +7,7 @@ class WorkTimeBackground {
     init() {
         this.setupMessageListener();
         this.setupAlarmListener();
-        this.setupNotificationClickListener();
+        this.setupNotificationListeners();
         this.setupInstallListener();
     }
 
@@ -26,6 +26,9 @@ class WorkTimeBackground {
                 case 'workEnded':
                     this.handleWorkEnded();
                     break;
+                case 'testNotification':
+                    this.showTestNotification();
+                    break;
                 case 'lunchStarted':
                     this.handleLunchStarted();
                     break;
@@ -43,9 +46,43 @@ class WorkTimeBackground {
         });
     }
 
-    setupNotificationClickListener() {
+    setupNotificationListeners() {
+        // Handle click on notification body (dismiss by default)
         chrome.notifications.onClicked.addListener((notificationId) => {
-            this.handleNotificationClick(notificationId);
+            try {
+                chrome.notifications.clear(notificationId);
+            } catch (e) {
+                console.error('Error clearing notification on click:', e);
+            }
+        });
+
+        // Handle action buttons consistently (registered once)
+        chrome.notifications.onButtonClicked.addListener(async (notifId, buttonIndex) => {
+            try {
+                switch (notifId) {
+                    case 'preLeave':
+                        if (buttonIndex === 0) {
+                            await this.endWorkFromNotification();
+                        }
+                        break;
+                    case 'endTime':
+                        if (buttonIndex === 0) {
+                            await this.endWorkFromNotification();
+                        } else if (buttonIndex === 1) {
+                            await this.continueOvertime();
+                        }
+                        break;
+                    case 'lunchEnd':
+                        if (buttonIndex === 0) {
+                            await this.endLunchFromNotification();
+                        }
+                        break;
+                }
+
+                try { chrome.notifications.clear(notifId); } catch {}
+            } catch (err) {
+                console.error('Error handling notification button click:', err);
+            }
         });
     }
 
@@ -198,39 +235,7 @@ class WorkTimeBackground {
         }
     }
 
-    async handleNotificationClick(notificationId) {
-        // Handle notification button clicks
-        chrome.notifications.onButtonClicked.addListener(async (notifId, buttonIndex) => {
-            if (notifId === notificationId) {
-                switch (notificationId) {
-                    case 'preLeave':
-                        if (buttonIndex === 0) {
-                            // End work now
-                            await this.endWorkFromNotification();
-                        }
-                        break;
-                    case 'endTime':
-                        if (buttonIndex === 0) {
-                            // End work
-                            await this.endWorkFromNotification();
-                        } else if (buttonIndex === 1) {
-                            // Continue overtime
-                            await this.continueOvertime();
-                        }
-                        break;
-                    case 'lunchEnd':
-                        if (buttonIndex === 0) {
-                            // End lunch
-                            await this.endLunchFromNotification();
-                        }
-                        break;
-                }
-
-                // Clear the notification
-                chrome.notifications.clear(notificationId);
-            }
-        });
-    }
+    // Removed dynamic button handler; handled globally in setupNotificationListeners()
 
     async endWorkFromNotification() {
         try {
@@ -301,6 +306,8 @@ class WorkTimeBackground {
         const endTime = new Date(start.getTime() + (settings.requiredHours * 60 * 60 * 1000));
         const preLeaveTime = new Date(endTime.getTime() - (settings.preLeaveMinutes * 60 * 1000));
 
+        // Clear any existing alarms before scheduling new ones
+        await this.clearAlarms();
         await this.setAlarm('preLeave', preLeaveTime.getTime());
         await this.setAlarm('endTime', endTime.getTime());
     }
@@ -324,6 +331,27 @@ class WorkTimeBackground {
 
         // Clear lunch alarm
         await chrome.alarms.clear('lunchEnd');
+    }
+
+    async showTestNotification() {
+        try {
+            const title = await this.getLocalizedMessage('notif.preLeave.title');
+            const message = await this.getLocalizedMessage('notif.overtime.msg');
+
+            await chrome.notifications.create('test-notification', {
+                type: 'basic',
+                iconUrl: 'icons/clock.png',
+                title,
+                message,
+                priority: 2,
+                buttons: [
+                    { title: 'OK' },
+                    { title: 'Dismiss' }
+                ]
+            });
+        } catch (error) {
+            console.error('Error creating test notification:', error);
+        }
     }
 
         async getSettings() {

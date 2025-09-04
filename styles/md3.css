@@ -1,0 +1,153 @@
+/* Material Design 3 – lightweight token set and utilities */
+
+/* MD3 tokens: light theme */
+:root {
+  /* Colors */
+  --md-sys-color-primary: #1b6ef3;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #dbe5ff;
+  --md-sys-color-on-primary-container: #001a3d;
+
+  --md-sys-color-secondary: #5b6b7e;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #dfe3ec;
+  --md-sys-color-on-secondary-container: #121a22;
+
+  --md-sys-color-surface: #fdfcff;
+  --md-sys-color-surface-container: #f3f5f7;
+  --md-sys-color-surface-variant: #e7eaf0;
+  --md-sys-color-on-surface: #1b1b1f;
+  --md-sys-color-on-surface-variant: #44474f;
+
+  --md-sys-color-outline: #c2c7cf;
+  --md-sys-color-outline-variant: #d7dbe3;
+
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Typography scale (system fonts for footprint) */
+  --md-ref-typeface: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --md-type-title-large-size: 22px;
+  --md-type-title-medium-size: 16px;
+  --md-type-body-medium-size: 14px;
+  --md-type-label-large-size: 14px;
+
+  /* Shape */
+  --md-shape-corner-extra-small: 4px;
+  --md-shape-corner-small: 8px;
+  --md-shape-corner-medium: 12px;
+  --md-shape-corner-large: 16px;
+
+  /* Elevation (shadows tuned for extension popups) */
+  --md-elevation-1: 0 1px 2px rgba(0,0,0,0.08), 0 1px 1px rgba(0,0,0,0.06);
+  --md-elevation-2: 0 2px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --md-elevation-3: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* MD3 tokens: dark theme */
+[data-theme="dark"] {
+  --md-sys-color-primary: #aac7ff;
+  --md-sys-color-on-primary: #00315e;
+  --md-sys-color-primary-container: #00468d;
+  --md-sys-color-on-primary-container: #d6e3ff;
+
+  --md-sys-color-secondary: #bfc6d2;
+  --md-sys-color-on-secondary: #29323c;
+  --md-sys-color-secondary-container: #404a57;
+  --md-sys-color-on-secondary-container: #dbe1ec;
+
+  --md-sys-color-surface: #111318;
+  --md-sys-color-surface-container: #1a1c1e;
+  --md-sys-color-surface-variant: #3f434a;
+  --md-sys-color-on-surface: #e2e2e6;
+  --md-sys-color-on-surface-variant: #c2c7cf;
+
+  --md-sys-color-outline: #8c9199;
+  --md-sys-color-outline-variant: #3f434a;
+
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+}
+
+/* Map existing project variables to MD3 tokens for minimal CSS changes */
+:root {
+  --bg-primary: var(--md-sys-color-surface);
+  --bg-secondary: var(--md-sys-color-surface-container);
+  --bg-tertiary: var(--md-sys-color-surface-variant);
+  --text-primary: var(--md-sys-color-on-surface);
+  --text-secondary: var(--md-sys-color-on-surface-variant);
+  --text-muted: var(--md-sys-color-on-surface-variant);
+  --accent-color: var(--md-sys-color-primary);
+  --accent-hover: color-mix(in srgb, var(--md-sys-color-primary) 85%, black);
+  --border-color: var(--md-sys-color-outline);
+  --border-focus: var(--md-sys-color-primary);
+  --success-color: #2e7d32; /* MD green approx */
+  --warning-color: #f9a825; /* MD amber approx */
+  --danger-color: var(--md-sys-color-error);
+}
+
+[data-theme="dark"] {
+  --bg-primary: var(--md-sys-color-surface);
+  --bg-secondary: var(--md-sys-color-surface-container);
+  --bg-tertiary: var(--md-sys-color-surface-variant);
+  --text-primary: var(--md-sys-color-on-surface);
+  --text-secondary: var(--md-sys-color-on-surface-variant);
+  --text-muted: var(--md-sys-color-on-surface-variant);
+  --accent-color: var(--md-sys-color-primary);
+  --accent-hover: color-mix(in srgb, var(--md-sys-color-primary) 80%, white);
+  --border-color: var(--md-sys-color-outline);
+  --border-focus: var(--md-sys-color-primary);
+  --success-color: #4caf50;
+  --warning-color: #ffca28;
+  --danger-color: var(--md-sys-color-error);
+}
+
+/* Utilities */
+.md-elev-1 { box-shadow: var(--md-elevation-1); }
+.md-elev-2 { box-shadow: var(--md-elevation-2); }
+.md-elev-3 { box-shadow: var(--md-elevation-3); }
+
+.md-shape-xs { border-radius: var(--md-shape-corner-extra-small); }
+.md-shape-s { border-radius: var(--md-shape-corner-small); }
+.md-shape-m { border-radius: var(--md-shape-corner-medium); }
+.md-shape-l { border-radius: var(--md-shape-corner-large); }
+
+.md-title-large { font-size: var(--md-type-title-large-size); font-weight: 600; letter-spacing: -0.02em; }
+.md-title-medium { font-size: var(--md-type-title-medium-size); font-weight: 600; }
+.md-body { font-size: var(--md-type-body-medium-size); }
+.md-label { font-size: var(--md-type-label-large-size); font-weight: 500; letter-spacing: 0.4px; text-transform: none; }
+
+/* Button variants following MD3 */
+.md-btn { 
+  font-family: var(--md-ref-typeface);
+  font-size: var(--md-type-label-large-size);
+  line-height: 20px;
+  border-radius: 20px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.md-btn--filled { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.md-btn--filled:hover { background: var(--accent-hover); }
+.md-btn--tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.md-btn--tonal:hover { box-shadow: var(--md-elevation-1); }
+.md-btn--outlined { background: transparent; color: var(--md-sys-color-on-surface); border-color: var(--md-sys-color-outline); }
+.md-btn--text { background: transparent; color: var(--md-sys-color-primary); }
+
+/* Text field (outlined) */
+.md-text-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-shape-corner-small);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.md-text-field:focus { outline: none; border-color: var(--md-sys-color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent); }
+
