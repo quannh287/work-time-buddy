@@ -1,0 +1,321 @@
+/* CSS Variables for Theme Support */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-muted: #adb5bd;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --border-color: #dee2e6;
+    --border-focus: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --shadow: none;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #808080;
+    --accent-color: #4dabf7;
+    --accent-hover: #339af0;
+    --border-color: #404040;
+    --border-focus: #4dabf7;
+    --success-color: #51cf66;
+    --warning-color: #ffd43b;
+    --danger-color: #ff6b6b;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.container {
+    width: 380px;
+    min-width: 300px;
+    min-height: 500px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+
+.status-indicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Main Content */
+.main-content {
+    padding: 20px;
+}
+
+/* Time Input Section */
+.time-input-section {
+    margin-bottom: 24px;
+}
+
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 400;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-input, .number-input {
+    width: 100%;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: border-color 0.2s ease;
+}
+
+.time-input:focus, .number-input:focus {
+    outline: none;
+    border-bottom-color: var(--accent-color);
+}
+
+.time-input:hover, .number-input:hover {
+    border-bottom-color: var(--text-muted);
+}
+
+/* Control Section */
+.control-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-color);
+}
+
+.btn:active {
+    background: var(--bg-tertiary);
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    border-color: #c82333;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    text-decoration: underline;
+    padding: 8px 0;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.btn-link:hover {
+    color: var(--accent-color);
+    background: none;
+}
+
+/* Time Display Section */
+.time-display-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.time-card {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 16px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.time-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-value {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    color: var(--text-primary);
+}
+
+/* Status Section */
+.status-section {
+    margin-bottom: 24px;
+}
+
+.status-card {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.status-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.status-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Footer */
+.footer {
+    background: var(--bg-secondary);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Status Variations */
+.status-normal {
+    border-left: 3px solid var(--accent-color);
+}
+
+.status-overtime {
+    border-left: 3px solid var(--danger-color);
+}
+
+.status-lunch {
+    border-left: 3px solid var(--warning-color);
+}
+
+.status-break {
+    border-left: 3px solid var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+    .container {
+        width: 100%;
+    }
+
+    .time-display-section {
+        grid-template-columns: 1fr;
+    }
+
+    .control-section {
+        grid-template-columns: 1fr;
+    }
+}

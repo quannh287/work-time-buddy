@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkTime Buddy - Options</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 data-i18n="settings">Settings</h1>
+            <p data-i18n="settings-desc">Customize your work time tracking experience</p>
+        </header>
+
+        <main class="main-content">
+            <!-- General Settings -->
+            <section class="settings-section">
+                <h2 data-i18n="general-settings">General Settings</h2>
+
+                <div class="setting-group">
+                    <label for="required-hours" data-i18n="requiredHours">Required Working Hours</label>
+                    <input type="number" id="required-hours" min="1" max="24" step="0.5" value="8">
+                    <span class="setting-description" data-i18n="required-hours-desc">Default number of hours you need to work per day</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="pre-leave-minutes" data-i18n="preLeaveNotifyMinutes">Pre-leave Reminder (minutes)</label>
+                    <input type="number" id="pre-leave-minutes" min="1" max="60" value="10">
+                    <span class="setting-description" data-i18n="pre-leave-desc">How many minutes before end time to show reminder</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="language" data-i18n="language">Language:</label>
+                    <select id="language">
+                        <option value="en">English</option>
+                        <option value="vi">Tiếng Việt</option>
+                    </select>
+                    <span class="setting-description" data-i18n="language-desc">Interface language</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="theme" data-i18n="theme">Theme:</label>
+                    <select id="theme">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                    <span class="setting-description" data-i18n="theme-desc">Visual theme for the extension</span>
+                </div>
+            </section>
+
+            <!-- Notification Settings -->
+            <section class="settings-section">
+                <h2 data-i18n="notification-settings">Notification Settings</h2>
+
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="pre-leave-notification" checked>
+                        <span class="checkmark"></span>
+                        <span data-i18n="pre-leave-notification">Pre-leave reminder notification</span>
+                    </label>
+                    <span class="setting-description" data-i18n="pre-leave-notification-desc">Get notified before your work day ends</span>
+                </div>
+
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="end-time-notification" checked>
+                        <span class="checkmark"></span>
+                        <span data-i18n="end-time-notification">End time notification</span>
+                    </label>
+                    <span class="setting-description" data-i18n="end-time-notification-desc">Get notified when your work day is over</span>
+                </div>
+
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="lunch-end-notification" checked>
+                        <span class="checkmark"></span>
+                        <span data-i18n="lunch-end-notification">Back from lunch notification</span>
+                    </label>
+                    <span class="setting-description" data-i18n="lunch-end-notification-desc">Get reminded to return from lunch break</span>
+                </div>
+            </section>
+
+            <!-- Badge Settings -->
+            <section class="settings-section">
+                <h2 data-i18n="badge-settings">Badge Settings</h2>
+
+                <div class="setting-group">
+                    <label for="badge-mode" data-i18n="badge-mode">Badge Display Mode:</label>
+                    <select id="badge-mode">
+                        <option value="minutes" data-i18n="badge-minutes">Minutes remaining</option>
+                        <option value="hours" data-i18n="badge-hours">Hours remaining</option>
+                        <option value="percentage" data-i18n="badge-percentage">Percentage complete</option>
+                        <option value="none" data-i18n="badge-none">No badge</option>
+                    </select>
+                    <span class="setting-description" data-i18n="badge-mode-desc">What to display on the extension icon badge</span>
+                </div>
+            </section>
+
+            <!-- Working Days Settings -->
+            <section class="settings-section">
+                <h2 data-i18n="working-days-settings">Working Days</h2>
+
+                <div class="setting-group">
+                    <div class="weekdays-container">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="monday" checked>
+                            <span class="checkmark"></span>
+                            <span data-i18n="monday">Monday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="tuesday" checked>
+                            <span class="checkmark"></span>
+                            <span data-i18n="tuesday">Tuesday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="wednesday" checked>
+                            <span class="checkmark"></span>
+                            <span data-i18n="wednesday">Wednesday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="thursday" checked>
+                            <span class="checkmark"></span>
+                            <span data-i18n="thursday">Thursday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="friday" checked>
+                            <span class="checkmark"></span>
+                            <span data-i18n="friday">Friday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="saturday">
+                            <span class="checkmark"></span>
+                            <span data-i18n="saturday">Saturday</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sunday">
+                            <span class="checkmark"></span>
+                            <span data-i18n="sunday">Sunday</span>
+                        </label>
+                    </div>
+                    <span class="setting-description" data-i18n="working-days-desc">Select which days you typically work</span>
+                </div>
+            </section>
+
+            <!-- Holidays Settings -->
+            <section class="settings-section">
+                <h2 data-i18n="holidays-settings">Holidays</h2>
+
+                <div class="setting-group">
+                    <div class="holidays-container">
+                        <div class="holiday-input">
+                            <input type="date" id="holiday-date" placeholder="Select date">
+                            <input type="text" id="holiday-name" placeholder="Holiday name">
+                            <button type="button" id="add-holiday" data-i18n="add-holiday">Add Holiday</button>
+                        </div>
+                        <div class="holidays-list" id="holidays-list">
+                            <!-- Holidays will be populated here -->
+                        </div>
+                    </div>
+                    <span class="setting-description" data-i18n="holidays-desc">Add holidays when you don't work</span>
+                </div>
+            </section>
+
+            <!-- Data Management -->
+            <section class="settings-section">
+                <h2 data-i18n="data-management">Data Management</h2>
+
+                <div class="setting-group">
+                    <button type="button" id="export-data" class="btn btn-secondary" data-i18n="export-data">Export Settings</button>
+                    <button type="button" id="import-data" class="btn btn-secondary" data-i18n="import-data">Import Settings</button>
+                    <button type="button" id="reset-data" class="btn btn-danger" data-i18n="reset-data">Reset All Data</button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <button type="button" id="save-settings" class="btn btn-primary" data-i18n="save">Save</button>
+            <button type="button" id="cancel" class="btn btn-secondary" data-i18n="cancel">Cancel</button>
+        </footer>
+
+        <!-- Hidden file input for import -->
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+    </div>
+
+    <script src="lib/i18n.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

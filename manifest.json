@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "WorkTime Buddy",
+  "version": "1.0.0",
+  "description": "Track your working hours with smart notifications and overtime detection",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "__MSG_app_tooltip__",
+    "default_icon": {
+      "16": "icons/clock.png",
+      "32": "icons/clock.png",
+      "48": "icons/clock.png",
+      "128": "icons/clock.png"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/clock.png",
+    "32": "icons/clock.png",
+    "48": "icons/clock.png",
+    "128": "icons/clock.png"
+  },
+  "default_locale": "en"
+}

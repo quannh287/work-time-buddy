@@ -1,0 +1,38 @@
+{
+  "name": "worktime-buddy",
+  "version": "1.0.0",
+  "description": "A Chrome Extension to track working hours with smart notifications and overtime detection",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "echo 'Load the dist/ folder in Chrome as an unpacked extension'",
+    "clean": "rm -rf dist/",
+    "remove-test": "node remove-test-code.js",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "chrome-extension",
+    "time-tracking",
+    "productivity",
+    "work-hours",
+    "notifications",
+    "i18n",
+    "internationalization"
+  ],
+  "author": "WorkTime Buddy Team",
+  "license": "MIT",
+  "devDependencies": {
+    "archiver": "^6.0.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/worktime-buddy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/worktime-buddy/issues"
+  },
+  "homepage": "https://github.com/your-username/worktime-buddy#readme"
+}
