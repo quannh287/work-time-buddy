@@ -471,10 +471,7 @@ class WorkTimeBackground {
 
     async updateBadgeFromBackground() {
         try {
-            const state = await chrome.storage.local.get([
-                'isWorking', 'startTime', 'requiredHours', 'lunchStartTime', 'lunchEndTime'
-            ]);
-
+            const state = await chrome.storage.local.get(['isWorking', 'startTime', 'requiredHours', 'lunchStartTime', 'lunchEndTime']);
             if (!state.isWorking || !state.startTime) {
                 chrome.action.setBadgeText({ text: '' });
                 return;
@@ -493,10 +490,24 @@ class WorkTimeBackground {
             }
 
             const endTime = new Date(startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
+            const remainingTime = endTime - now;
+
+            if (remainingTime <= 0) {
+                chrome.action.setBadgeText({ text: 'OT' });
+                chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+            } else {
+                const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
+                chrome.action.setBadgeText({ text: remainingMinutes.toString() });
+                chrome.action.setBadgeBackgroundColor({ color: '#4facfe' });
+            }
+
+        } catch (error) {
+            console.error('Error updating badge from background:', error);
+        }
+    }
 
     async showMicroBreakNotification() {
         const settings = await this.getSettings();
-
         if (!settings.microBreakEnabled) return;
 
         const title = await this.getLocalizedMessage('notif.microBreak.title');
@@ -525,21 +536,6 @@ class WorkTimeBackground {
             }
         } catch (error) {
             console.error('Error showing micro break notification:', error);
-        }
-    }
-            const remainingTime = endTime - now;
-
-            if (remainingTime <= 0) {
-                chrome.action.setBadgeText({ text: 'OT' });
-                chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
-            } else {
-                const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
-                chrome.action.setBadgeText({ text: remainingMinutes.toString() });
-                chrome.action.setBadgeBackgroundColor({ color: '#4facfe' });
-            }
-
-        } catch (error) {
-            console.error('Error updating badge from background:', error);
         }
     }
 }
