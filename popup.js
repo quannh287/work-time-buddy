@@ -136,10 +136,10 @@ class WorkTimePopup {
         const [startHour, startMinute] = startTimeInput.value.split(':').map(Number);
         startTime.setHours(startHour, startMinute, 0, 0);
 
-        let endTime = new Date(startTime);
-        endTime.setHours(endTime.getHours() + requiredHours);
-
-        // Add lunch break if specified
+        // Calculate total time needed (work hours + lunch break)
+        let totalTimeNeeded = requiredHours;
+        
+        // Add lunch break duration if specified
         if (lunchStartInput.value && lunchEndInput.value) {
             const [lunchStartHour, lunchStartMinute] = lunchStartInput.value.split(':').map(Number);
             const [lunchEndHour, lunchEndMinute] = lunchEndInput.value.split(':').map(Number);
@@ -151,8 +151,11 @@ class WorkTimePopup {
             lunchEnd.setHours(lunchEndHour, lunchEndMinute, 0, 0);
 
             const lunchDuration = (lunchEnd - lunchStart) / (1000 * 60 * 60);
-            endTime.setHours(endTime.getHours() + lunchDuration);
+            totalTimeNeeded += lunchDuration;
         }
+
+        // Calculate end time
+        const endTime = new Date(startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
 
         document.getElementById('end-time').textContent =
             endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -290,14 +293,17 @@ class WorkTimePopup {
     calculateEndTime() {
         if (!this.currentState.startTime) return null;
 
-        const endTime = new Date(this.currentState.startTime);
-        endTime.setHours(endTime.getHours() + this.currentState.requiredHours);
-
+        // Calculate total time needed (work hours + lunch break)
+        let totalTimeNeeded = this.currentState.requiredHours;
+        
         // Add lunch break if taken
         if (this.currentState.lunchStartTime && this.currentState.lunchEndTime) {
             const lunchDuration = (this.currentState.lunchEndTime - this.currentState.lunchStartTime) / (1000 * 60 * 60);
-            endTime.setHours(endTime.getHours() + lunchDuration);
+            totalTimeNeeded += lunchDuration;
         }
+
+        // Calculate end time
+        const endTime = new Date(this.currentState.startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
 
         return endTime;
     }
