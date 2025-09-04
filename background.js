@@ -77,6 +77,13 @@ class WorkTimeBackground {
                             await this.endLunchFromNotification();
                         }
                         break;
+                    case 'microBreak':
+                        if (buttonIndex === 0) {
+                            // Snooze 5 minutes
+                            const snoozeAt = Date.now() + (5 * 60 * 1000);
+                            await this.setAlarm('microBreak', snoozeAt);
+                        }
+                        break;
                 }
 
                 try { chrome.notifications.clear(notifId); } catch {}
@@ -148,6 +155,9 @@ class WorkTimeBackground {
             case 'lunchEnd':
                 await this.showLunchEndNotification();
                 break;
+            case 'microBreak':
+                await this.showMicroBreakNotification();
+                break;
         }
     }
 
@@ -165,10 +175,10 @@ class WorkTimeBackground {
             iconUrl: 'icons/clock.png',
             title: title,
             message: message,
-            buttons: [
+            buttons: settings.notificationStyle === 'rich' ? [
                 { title: 'End Work Now' },
                 { title: 'Dismiss' }
-            ],
+            ] : undefined,
             priority: 1
         };
 
@@ -193,15 +203,22 @@ class WorkTimeBackground {
             iconUrl: 'icons/clock.png',
             title: title,
             message: message,
-            buttons: [
+            buttons: settings.notificationStyle === 'rich' ? [
                 { title: 'End Work' },
                 { title: 'Continue (Overtime)' }
-            ],
+            ] : undefined,
             priority: 2
         };
 
         try {
             await chrome.notifications.create('endTime', notificationOptions);
+            if (settings.ttsEndTimeEnabled && chrome.tts?.speak) {
+                try {
+                    chrome.tts.speak(message, { enqueue: false, rate: 1.0 });
+                } catch (e) {
+                    console.error('Error using TTS for end time:', e);
+                }
+            }
         } catch (error) {
             console.error('Error showing end time notification:', error);
         }
@@ -221,10 +238,10 @@ class WorkTimeBackground {
             iconUrl: 'icons/clock.png',
             title: title,
             message: message,
-            buttons: [
+            buttons: settings.notificationStyle === 'rich' ? [
                 { title: 'End Lunch' },
                 { title: 'Dismiss' }
-            ],
+            ] : undefined,
             priority: 1
         };
 
@@ -310,6 +327,12 @@ class WorkTimeBackground {
         await this.clearAlarms();
         await this.setAlarm('preLeave', preLeaveTime.getTime());
         await this.setAlarm('endTime', endTime.getTime());
+
+        // Schedule first micro-break if enabled
+        if (settings.microBreakEnabled) {
+            const first = Date.now() + (settings.microBreakInterval * 60 * 1000);
+            await this.setAlarm('microBreak', first);
+        }
     }
 
     async handleWorkEnded() {
@@ -357,7 +380,8 @@ class WorkTimeBackground {
         async getSettings() {
         try {
             const result = await chrome.storage.sync.get([
-                'requiredHours', 'preLeaveMinutes', 'notifications', 'language'
+                'requiredHours', 'preLeaveMinutes', 'notifications', 'language',
+                'microBreakEnabled', 'microBreakInterval', 'notificationStyle', 'ttsEndTimeEnabled'
             ]);
 
             return {
@@ -368,7 +392,11 @@ class WorkTimeBackground {
                     preLeave: true,
                     endTime: true,
                     lunchEnd: true
-                }
+                },
+                microBreakEnabled: result.microBreakEnabled ?? false,
+                microBreakInterval: result.microBreakInterval ?? 60,
+                notificationStyle: result.notificationStyle || 'rich',
+                ttsEndTimeEnabled: result.ttsEndTimeEnabled ?? false
             };
         } catch (error) {
             console.error('Error getting settings:', error);
@@ -380,7 +408,11 @@ class WorkTimeBackground {
                     preLeave: true,
                     endTime: true,
                     lunchEnd: true
-                }
+                },
+                microBreakEnabled: false,
+                microBreakInterval: 60,
+                notificationStyle: 'rich',
+                ttsEndTimeEnabled: false
             };
         }
     }
@@ -402,7 +434,9 @@ class WorkTimeBackground {
                     'notif.workEnded.title': 'WorkTime Buddy',
                     'notif.workEnded.msg': 'Work session ended! Have a great rest of your day! 🌟',
                     'notif.overtime.title': 'WorkTime Buddy',
-                    'notif.overtime.msg': 'Continuing in overtime mode. Remember to take breaks! ⚠️'
+                    'notif.overtime.msg': 'Continuing in overtime mode. Remember to take breaks! ⚠️',
+                    'notif.microBreak.title': 'WorkTime Buddy',
+                    'notif.microBreak.msg': 'Time to take a short break. Stretch and rest your eyes.'
                 },
                 vi: {
                     'notif.preLeave.title': 'WorkTime Buddy',
@@ -414,7 +448,9 @@ class WorkTimeBackground {
                     'notif.workEnded.title': 'WorkTime Buddy',
                     'notif.workEnded.msg': 'Kết thúc ca làm việc! Chúc bạn có thời gian nghỉ ngơi tuyệt vời! 🌟',
                     'notif.overtime.title': 'WorkTime Buddy',
-                    'notif.overtime.msg': 'Tiếp tục chế độ tăng ca. Nhớ nghỉ giải lao nhé! ⚠️'
+                    'notif.overtime.msg': 'Tiếp tục chế độ tăng ca. Nhớ nghỉ giải lao nhé! ⚠️',
+                    'notif.microBreak.title': 'WorkTime Buddy',
+                    'notif.microBreak.msg': 'Đến giờ giải lao ngắn. Duỗi tay và nghỉ mắt nhé.'
                 }
             };
 
@@ -458,6 +494,39 @@ class WorkTimeBackground {
 
             const endTime = new Date(startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
 
+    async showMicroBreakNotification() {
+        const settings = await this.getSettings();
+
+        if (!settings.microBreakEnabled) return;
+
+        const title = await this.getLocalizedMessage('notif.microBreak.title');
+        const message = await this.getLocalizedMessage('notif.microBreak.msg');
+
+        const notificationOptions = {
+            type: 'basic',
+            iconUrl: 'icons/clock.png',
+            title,
+            message,
+            buttons: settings.notificationStyle === 'rich' ? [
+                { title: 'Snooze 5m' },
+                { title: 'Dismiss' }
+            ] : undefined,
+            priority: 0
+        };
+
+        try {
+            await chrome.notifications.create('microBreak', notificationOptions);
+
+            // Reschedule next micro-break if still working
+            const local = await chrome.storage.local.get(['isWorking']);
+            if (local.isWorking) {
+                const next = Date.now() + (settings.microBreakInterval * 60 * 1000);
+                await this.setAlarm('microBreak', next);
+            }
+        } catch (error) {
+            console.error('Error showing micro break notification:', error);
+        }
+    }
             const remainingTime = endTime - now;
 
             if (remainingTime <= 0) {
