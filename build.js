@@ -33,6 +33,9 @@ class BuildScript {
             // Copy source files
             this.copySourceFiles();
 
+            // Bundle & minify JS entry points into dist
+            await this.bundleAndMinify();
+
             // Create zip archive
             await this.createZipArchive();
 
@@ -47,6 +50,49 @@ class BuildScript {
         } catch (error) {
             console.error('❌ Build failed:', error.message);
             process.exit(1);
+        }
+    }
+
+    async bundleAndMinify() {
+        console.log('🧩 Bundling & minifying JavaScript with esbuild...');
+
+        let esbuild;
+        try {
+            esbuild = require('esbuild');
+        } catch (error) {
+            console.log('📦 Installing esbuild dependency...');
+            try {
+                execSync('npm install --save-dev esbuild', { stdio: 'inherit' });
+                esbuild = require('esbuild');
+            } catch (installErr) {
+                console.error('❌ Failed to install esbuild:', installErr.message);
+                throw installErr;
+            }
+        }
+
+        const entryPoints = [
+            path.join(this.rootDir, 'background.js'),
+            path.join(this.rootDir, 'popup.js'),
+            path.join(this.rootDir, 'options.js'),
+        ];
+
+        try {
+            await esbuild.build({
+                entryPoints,
+                outdir: this.distDir,
+                bundle: true,
+                minify: true,
+                sourcemap: false,
+                splitting: false,      // single file per entry (MV3-friendly)
+                format: 'iife',        // self-contained for browser contexts
+                platform: 'browser',
+                target: ['es2020'],    // or specific Chrome versions
+                logLevel: 'info'
+            });
+            console.log('✅ Bundled & minified JS files.');
+        } catch (error) {
+            console.error('❌ esbuild failed:', error.message);
+            throw error;
         }
     }
 
