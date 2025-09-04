@@ -138,7 +138,7 @@ class WorkTimePopup {
 
         // Calculate total time needed (work hours + lunch break)
         let totalTimeNeeded = requiredHours;
-        
+
         // Add lunch break duration if specified
         if (lunchStartInput.value && lunchEndInput.value) {
             const [lunchStartHour, lunchStartMinute] = lunchStartInput.value.split(':').map(Number);
@@ -295,7 +295,7 @@ class WorkTimePopup {
 
         // Calculate total time needed (work hours + lunch break)
         let totalTimeNeeded = this.currentState.requiredHours;
-        
+
         // Add lunch break if taken
         if (this.currentState.lunchStartTime && this.currentState.lunchEndTime) {
             const lunchDuration = (this.currentState.lunchEndTime - this.currentState.lunchStartTime) / (1000 * 60 * 60);

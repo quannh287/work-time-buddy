@@ -418,16 +418,16 @@ class WorkTimeBackground {
 
             const startTime = new Date(state.startTime);
             const now = new Date();
-            
+
             // Calculate total time needed (work hours + lunch break)
             let totalTimeNeeded = state.requiredHours;
-            
+
             // Add lunch time if taken
             if (state.lunchStartTime && state.lunchEndTime) {
                 const lunchDuration = (new Date(state.lunchEndTime) - new Date(state.lunchStartTime)) / (1000 * 60 * 60);
                 totalTimeNeeded += lunchDuration;
             }
-            
+
             const endTime = new Date(startTime.getTime() + (totalTimeNeeded * 60 * 60 * 1000));
 
             const remainingTime = endTime - now;
