@@ -13,7 +13,12 @@ class WorkTimeOptions {
                 preLeave: true,
                 endTime: true,
                 lunchEnd: true
-            }
+            },
+            // New settings
+            microBreakEnabled: false,
+            microBreakInterval: 60,
+            notificationStyle: 'rich',
+            ttsEndTimeEnabled: false
         };
 
         this.init();
@@ -35,7 +40,8 @@ class WorkTimeOptions {
         try {
             const result = await chrome.storage.sync.get([
                 'requiredHours', 'preLeaveMinutes', 'theme', 'language',
-                'badgeMode', 'weekdays', 'holidays', 'notifications'
+                'badgeMode', 'weekdays', 'holidays', 'notifications',
+                'microBreakEnabled', 'microBreakInterval', 'notificationStyle', 'ttsEndTimeEnabled'
             ]);
 
             this.settings = {
@@ -50,7 +56,11 @@ class WorkTimeOptions {
                     preLeave: true,
                     endTime: true,
                     lunchEnd: true
-                }
+                },
+                microBreakEnabled: result.microBreakEnabled ?? false,
+                microBreakInterval: result.microBreakInterval ?? 60,
+                notificationStyle: result.notificationStyle || 'rich',
+                ttsEndTimeEnabled: result.ttsEndTimeEnabled ?? false
             };
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -117,6 +127,12 @@ class WorkTimeOptions {
         document.getElementById('pre-leave-notification').checked = this.settings.notifications.preLeave;
         document.getElementById('end-time-notification').checked = this.settings.notifications.endTime;
         document.getElementById('lunch-end-notification').checked = this.settings.notifications.lunchEnd;
+
+        // Micro-breaks & style & TTS
+        document.getElementById('micro-break-enabled').checked = this.settings.microBreakEnabled;
+        document.getElementById('micro-break-interval').value = this.settings.microBreakInterval;
+        document.getElementById('notification-style').value = this.settings.notificationStyle;
+        document.getElementById('tts-end-time-enabled').checked = this.settings.ttsEndTimeEnabled;
 
         // Badge settings
         document.getElementById('badge-mode').value = this.settings.badgeMode;
@@ -211,6 +227,12 @@ class WorkTimeOptions {
                 endTime: document.getElementById('end-time-notification').checked,
                 lunchEnd: document.getElementById('lunch-end-notification').checked
             };
+
+            // Micro-breaks & style & TTS
+            this.settings.microBreakEnabled = document.getElementById('micro-break-enabled').checked;
+            this.settings.microBreakInterval = parseInt(document.getElementById('micro-break-interval').value) || 60;
+            this.settings.notificationStyle = document.getElementById('notification-style').value;
+            this.settings.ttsEndTimeEnabled = document.getElementById('tts-end-time-enabled').checked;
 
             // Weekdays
             const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

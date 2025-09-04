@@ -11,12 +11,13 @@ class BuildScript {
         this.sourceFiles = [
             'manifest.json',
             'popup.html',
-            'popup.css',
+            // CSS moved into styles/
             'popup.js',
             'background.js',
             'options.html',
-            'options.css',
+            // CSS moved into styles/
             'options.js',
+            'styles/',
             'lib/',
             'icons/',
             '_locales/'
@@ -35,6 +36,9 @@ class BuildScript {
 
             // Bundle & minify JS entry points into dist
             await this.bundleAndMinify();
+
+            // Minify CSS assets into dist
+            await this.minifyCss();
 
             // Create zip archive
             await this.createZipArchive();
@@ -92,6 +96,51 @@ class BuildScript {
             console.log('✅ Bundled & minified JS files.');
         } catch (error) {
             console.error('❌ esbuild failed:', error.message);
+            throw error;
+        }
+    }
+
+    async minifyCss() {
+        console.log('🎨 Minifying CSS with esbuild...');
+
+        let esbuild;
+        try {
+            esbuild = require('esbuild');
+        } catch (error) {
+            console.log('📦 Installing esbuild dependency for CSS...');
+            try {
+                execSync('npm install --save-dev esbuild', { stdio: 'inherit' });
+                esbuild = require('esbuild');
+            } catch (installErr) {
+                console.error('❌ Failed to install esbuild for CSS:', installErr.message);
+                throw installErr;
+            }
+        }
+
+        const cssEntries = [
+            path.join(this.rootDir, 'styles', 'popup.css'),
+            path.join(this.rootDir, 'styles', 'options.css'),
+            path.join(this.rootDir, 'styles', 'md3.css')
+        ].filter(p => fs.existsSync(p));
+
+        if (cssEntries.length === 0) {
+            console.log('ℹ️ No CSS files found to minify.');
+            return;
+        }
+
+        try {
+            await esbuild.build({
+                entryPoints: cssEntries,
+                outdir: path.join(this.distDir, 'styles'),
+                outbase: path.join(this.rootDir, 'styles'),
+                bundle: false,
+                minify: true,
+                sourcemap: false,
+                logLevel: 'info'
+            });
+            console.log('✅ CSS minified.');
+        } catch (error) {
+            console.error('❌ CSS minification failed:', error.message);
             throw error;
         }
     }

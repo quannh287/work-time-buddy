@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WorkTime Buddy - Options</title>
     <link rel="stylesheet" href="styles/md3.css">
-    <link rel="stylesheet" href="options.css">
+    <link rel="stylesheet" href="styles/options.css">
 </head>
 <body>
     <div class="container">
@@ -79,6 +79,40 @@
                         <span data-i18n="lunch-end-notification">Back from lunch notification</span>
                     </label>
                     <span class="setting-description" data-i18n="lunch-end-notification-desc">Get reminded to return from lunch break</span>
+                </div>
+
+                <hr>
+                <h3 data-i18n="micro-breaks">Micro-breaks</h3>
+
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="micro-break-enabled">
+                        <span class="checkmark"></span>
+                        <span data-i18n="micro-break-enabled">Enable micro-break reminders</span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <label for="micro-break-interval" data-i18n="micro-break-interval">Micro-break interval (minutes)</label>
+                    <input type="number" id="micro-break-interval" min="10" max="120" value="60">
+                </div>
+
+                <hr>
+                <h3 data-i18n="notification-style">Notification Style</h3>
+                <div class="setting-group">
+                    <label for="notification-style" data-i18n="notification-style">Notification Style</label>
+                    <select id="notification-style">
+                        <option value="compact" data-i18n="style.compact">Compact</option>
+                        <option value="rich" data-i18n="style.rich">Rich</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="tts-end-time-enabled">
+                        <span class="checkmark"></span>
+                        <span data-i18n="tts-end-time-enabled">Speak end time (TTS)</span>
+                    </label>
                 </div>
             </section>
 
