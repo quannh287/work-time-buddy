@@ -96,6 +96,12 @@ body {
     margin-bottom: 24px;
 }
 
+.time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
 .input-group {
     margin-bottom: 16px;
 }
